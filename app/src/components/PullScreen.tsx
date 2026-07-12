@@ -342,7 +342,7 @@ export function PullScreen({
       pullIndexBytes.writeUInt32LE(lastPull.pullIndex)
 
       const [mintPda] = web3.PublicKey.findProgramAddressSync(
-        [Buffer.from('card_mint'), wallet.publicKey.toBuffer(), pullIndexBytes],
+        [Buffer.from('card_mint_v2'), wallet.publicKey.toBuffer(), pullIndexBytes],
         PROGRAM_ID
       )
       const [cardRecordPda] = web3.PublicKey.findProgramAddressSync(

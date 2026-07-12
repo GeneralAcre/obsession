@@ -86,7 +86,7 @@ export function ProfileScreen() {
           const pullIndexBytes = Buffer.alloc(4)
           pullIndexBytes.writeUInt32LE(pullIndex)
           return web3.PublicKey.findProgramAddressSync(
-            [Buffer.from('card_mint'), walletPublicKey.toBuffer(), pullIndexBytes],
+            [Buffer.from('card_mint_v2'), walletPublicKey.toBuffer(), pullIndexBytes],
             PROGRAM_ID
           )[0]
         })

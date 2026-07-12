@@ -13,7 +13,9 @@ declare_id!("4re47fFt4ty2BkNS9NuhBUqDSbGZYhydkt42f4c9E7zv");
 // accounts already existed on devnet; a new seed gives everyone a fresh,
 // correctly-sized account instead of failing to deserialize the old ones.
 pub const PLAYER_SEED: &[u8] = b"player_v2";
-pub const CARD_MINT_SEED: &[u8] = b"card_mint";
+// v2: pull counts restarted with the player_v2 reset, so pull_index values repeat;
+// a new mint seed keeps fresh mints from colliding with v1-era card mint PDAs.
+pub const CARD_MINT_SEED: &[u8] = b"card_mint_v2";
 pub const CARD_RECORD_SEED: &[u8] = b"card_record";
 pub const TREASURY_SEED: &[u8] = b"treasury";
 
