@@ -1,3 +1,4 @@
+@import url('https://fonts.cdnfonts.com/css/kdam-thmor-pro');
 @import "tailwindcss";
 
 @theme {
@@ -8,9 +9,13 @@
 
 :root {
   color-scheme: dark;
-  font: 16px/1.4 'Segoe UI', system-ui, Roboto, sans-serif;
+  font: 16px/1.4 'Kdam Thmor Pro', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.font-kdam {
+  font-family: 'Kdam Thmor Pro', sans-serif;
 }
 
 html,
@@ -38,6 +43,25 @@ textarea {
 @keyframes reveal {
   0% { opacity: 0; transform: rotateY(90deg) scale(0.8); }
   100% { opacity: 1; transform: rotateY(0) scale(1); }
+}
+
+.draw-card-art::after {
+  content: '';
+  position: absolute;
+  inset: -55% -70%;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 43%, rgba(255,255,255,.58) 50%, transparent 57%);
+  transform: translateX(-70%) rotate(8deg);
+  transition: transform .65s ease;
+}
+
+.group:hover .draw-card-art::after,
+.group:focus-visible .draw-card-art::after {
+  transform: translateX(70%) rotate(8deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-card-art::after { transition: none; }
 }
 
 /* Recolor the third-party wallet-adapter button to match the palette */

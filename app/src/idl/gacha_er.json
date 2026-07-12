@@ -25,8 +25,11 @@
       "accounts": [
         {
           "name": "vrf_program_identity",
-          "signer": true,
-          "address": "9irBy75QS2BN81FUgXuHcjqceJJRuc9oDkAe8TKVvvAw"
+          "docs": [
+            "program specifically — the legacy global VRF_PROGRAM_IDENTITY is deprecated and the",
+            "live oracle fulfiller no longer signs callbacks with it."
+          ],
+          "signer": true
         },
         {
           "name": "player",
@@ -265,6 +268,215 @@
       "args": []
     },
     {
+      "name": "mint_card_nft",
+      "docs": [
+        "Mints the most recently pulled card as a real, wallet-visible NFT on the base layer:",
+        "a fresh 0-decimal mint with a fixed supply of 1 (mint authority revoked right after",
+        "minting), plus a small on-chain record of which rarity/seed it represents. Runs on the",
+        "base layer (not the ER) so the token is durable and shows up in any Solana wallet,",
+        "including on Seeker."
+      ],
+      "discriminator": [
+        234,
+        240,
+        66,
+        205,
+        104,
+        91,
+        164,
+        223
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "docs": [
+            "A brand-new, one-off mint: 0 decimals, mint authority is the PDA itself so this",
+            "instruction can sign for it once and then revoke minting forever."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              },
+              {
+                "kind": "arg",
+                "path": "pull_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "card_record",
+          "docs": [
+            "The rarity/seed this specific mint represents — the on-chain \"trait data\" for the card,",
+            "kept separately since we skip full Metaplex metadata for now."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  114,
+                  101,
+                  99,
+                  111,
+                  114,
+                  100
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "payer"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "rarity",
+          "type": "u8"
+        },
+        {
+          "name": "card_seed",
+          "type": "u8"
+        },
+        {
+          "name": "pull_index",
+          "type": "u32"
+        }
+      ]
+    },
+    {
       "name": "process_undelegation",
       "discriminator": [
         196,
@@ -348,8 +560,12 @@
         },
         {
           "name": "oracle_queue",
+          "docs": [
+            "the ephemeral queue — it's pre-delegated to the delegation program on the base layer,",
+            "unlike DEFAULT_QUEUE, so the ER will actually let a pull's fee payer touch it."
+          ],
           "writable": true,
-          "address": "Cuj97ggrhhidhbu39TijNVqE74xvKJ69gDervRUXAxGh"
+          "address": "5hBR571xnXppuCPveTrctfTU7tJLSN94nq7kv7FRK5Tc"
         },
         {
           "name": "program_identity",
@@ -394,6 +610,19 @@
   ],
   "accounts": [
     {
+      "name": "CardRecord",
+      "discriminator": [
+        251,
+        16,
+        238,
+        248,
+        145,
+        213,
+        126,
+        170
+      ]
+    },
+    {
       "name": "Player",
       "discriminator": [
         205,
@@ -407,7 +636,38 @@
       ]
     }
   ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidRarity",
+      "msg": "Rarity byte must be 0 (Common), 1 (Rare), or 2 (Legendary)"
+    }
+  ],
   "types": [
+    {
+      "name": "CardRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "rarity",
+            "type": "u8"
+          },
+          {
+            "name": "card_seed",
+            "type": "u8"
+          },
+          {
+            "name": "pull_index",
+            "type": "u32"
+          }
+        ]
+      }
+    },
     {
       "name": "Player",
       "type": {

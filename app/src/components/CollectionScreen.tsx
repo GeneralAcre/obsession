@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
-import { getCollectionCards, type Rarity } from './cardRegistry'
-import { getCategory } from './categories'
-import { OracleCardArt } from './OracleCardArt'
+import { useEffect, useMemo, useState } from 'react'
+import { getCollectionCards, type Rarity, RARITY_MAP } from './cardRegistry'
+import { CATEGORIES, getCategory } from './categories'
 
 const RARITY_LABEL: Record<Rarity, string> = {
   minor: 'Minor Omen',
@@ -9,10 +8,34 @@ const RARITY_LABEL: Record<Rarity, string> = {
   grand: 'Grand Revelation',
 }
 
-const cards = getCollectionCards()
+// Rarity is shown as a ring/badge around the shared deck art, not as separate artwork.
+const RARITY_RING: Record<Rarity, string> = {
+  minor: 'border-ink',
+  major: 'border-flare',
+  grand: 'border-flare shadow-[0_0_24px_-4px_#FD1789]',
+}
+
+const allCards = getCollectionCards()
 
 export function CollectionScreen() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
+
+  const cards = useMemo(() => allCards, [])
+
+  const groupedCards = useMemo(
+    () =>
+      CATEGORIES.map((category) => ({
+        category,
+        categoryInfo: getCategory(category.id),
+        rarities: RARITY_MAP.map((rarity) => ({
+          rarity,
+          items: cards
+            .map((item, index) => ({ ...item, index }))
+            .filter((item) => item.category === category.id && item.card.rarity === rarity),
+        })),
+      })),
+    [cards]
+  )
 
   useEffect(() => {
     if (activeIndex === null) return
@@ -23,7 +46,7 @@ export function CollectionScreen() {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [activeIndex])
+  }, [activeIndex, cards.length])
 
   const active = activeIndex === null ? null : cards[activeIndex]
 
@@ -36,23 +59,55 @@ export function CollectionScreen() {
         </div>
         <p className="max-w-xs text-sm text-ink/70">Every card that can emerge from Madame Obsession's sealed gacha decks.</p>
       </div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ category, card }, index) => (
-          <article
-            key={`${category}-${card.rarity}-${card.name}`}
-            onClick={() => setActiveIndex(index)}
-            className="flex cursor-pointer gap-4 border-4 border-ink bg-paper p-3 text-left shadow-[5px_5px_0_#18171b] transition hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#18171b]"
-          >
-            <OracleCardArt category={category} rarity={card.rarity} className="h-36 w-24 shrink-0 border-2 border-ink bg-ink" />
-            <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-widest text-flare">{RARITY_LABEL[card.rarity]}</p>
-              <h2 className="mt-2 text-lg font-black uppercase leading-tight text-ink">{card.name}</h2>
-              <p className="mt-2 text-xs italic leading-5 text-ink/70">"{card.reading}"</p>
-              <p className="mt-3 text-[10px] font-black uppercase tracking-widest text-ink/55">{getCategory(category).label} deck</p>
+
+      {groupedCards.map(({ categoryInfo, rarities }) => (
+        <section key={categoryInfo.id} className="mt-10">
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b-4 border-ink pb-5">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-ink/65">{categoryInfo.label} deck</p>
+              <h2 className="mt-2 text-3xl font-black uppercase text-ink sm:text-4xl">{categoryInfo.description}</h2>
             </div>
-          </article>
-        ))}
-      </div>
+            <span className="rounded-full border-2 border-ink bg-paper px-4 py-1 text-xs font-black uppercase tracking-[0.22em] text-ink shadow-[3px_3px_0_#18171b]">
+              {categoryInfo.symbol}
+            </span>
+          </div>
+
+          <div className="mt-6 space-y-8">
+            {rarities.map(({ rarity, items }) => (
+              <div key={rarity} className="space-y-4">
+                <div className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-ink">
+                  <span className={`inline-flex h-3 w-3 rounded-full ${
+                    rarity === 'minor' ? 'bg-ink' : rarity === 'major' ? 'bg-flare' : 'bg-flare'
+                  }`} />
+                  <span>{RARITY_LABEL[rarity]}</span>
+                  <span className="text-ink/55">({items.length} cards)</span>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {items.map(({ category, card, index }) => (
+                    <article
+                      key={`${category}-${card.rarity}-${card.name}`}
+                      onClick={() => setActiveIndex(index)}
+                      className="flex cursor-pointer gap-4 border-4 border-ink bg-paper p-3 text-left shadow-[5px_5px_0_#18171b] transition hover:-translate-y-0.5 hover:shadow-[7px_7px_0_#18171b]"
+                    >
+                      <img
+                        src={card.image}
+                        alt={`${card.name} card art`}
+                        className={`h-36 w-24 shrink-0 border-4 bg-ink object-cover ${RARITY_RING[card.rarity]}`}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-flare">{RARITY_LABEL[card.rarity]}</p>
+                        <h3 className="mt-2 text-lg font-black uppercase leading-tight text-ink">{card.name}</h3>
+                        <p className="mt-2 text-xs italic leading-5 text-ink/70">"{card.reading}"</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
 
       {active && (
         <div
@@ -72,10 +127,10 @@ export function CollectionScreen() {
               ×
             </button>
 
-            <OracleCardArt
-              category={active.category}
-              rarity={active.card.rarity}
-              className="mx-auto h-52 w-36 shrink-0 border-2 border-ink bg-ink sm:mx-0 sm:h-64 sm:w-44"
+            <img
+              src={active.card.image}
+              alt={`${active.card.name} card art`}
+              className={`mx-auto h-52 w-36 shrink-0 border-4 bg-ink object-cover sm:mx-0 sm:h-64 sm:w-44 ${RARITY_RING[active.card.rarity]}`}
               key={activeIndex}
             />
 

@@ -17,11 +17,15 @@ interface PlayerAccount {
 }
 
 const PROGRAM_ID = new web3.PublicKey('4re47fFt4ty2BkNS9NuhBUqDSbGZYhydkt42f4c9E7zv')
+const TOKEN_PROGRAM_ID = new web3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+const ASSOCIATED_TOKEN_PROGRAM_ID = new web3.PublicKey('ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL')
 
 // MagicBlock devnet ER endpoint (Asia region — swap for eu/us if you prefer)
 const ER_ENDPOINT = 'https://devnet-as.magicblock.app'
 const ER_WS_ENDPOINT = 'wss://devnet-as.magicblock.app'
-const ER_VALIDATOR = new web3.PublicKey('MAS1Dt9qreoRMQ14YQuhg8UTZMMzDdKhmkZMECCzk57')
+// No validator pin on delegation: the shared VRF oracle queue is itself delegated
+// without a pinned validator, and pinning one here causes the router to reject
+// pull transactions with "accounts that were delegated to different ER nodes."
 
 const RARITY_STYLE: Record<Rarity, { badge: string; ring: string; label: string }> = {
   minor: { badge: 'bg-paper text-ink', ring: 'border-paper/40', label: 'MINOR OMEN' },
@@ -41,7 +45,7 @@ const DEVNET_FAUCET_URL = 'https://faucet.solana.com'
 function friendlyRpcError(e: unknown): string {
   const message = e instanceof Error ? e.message : String(e)
   if (/insufficient|debit an account|0x1\b/i.test(message)) {
-    return 'This wallet needs devnet SOL to cover the one-time setup step. Get some free devnet SOL, then try again.'
+    return 'This wallet needs a trace of devnet SOL to cover this step. Get some free devnet SOL, then try again.'
   }
   return message
 }
@@ -70,6 +74,11 @@ export function PullScreen({
   const [pitySinceGrand, setPitySinceGrand] = useState<number | null>(null)
   const [latencyMs, setLatencyMs] = useState<number | null>(null)
   const [setupLamports, setSetupLamports] = useState<number | null>(null)
+  const [lastPull, setLastPull] = useState<{ rarity: number; cardSeed: number; pullIndex: number } | null>(null)
+  const [minting, setMinting] = useState(false)
+  const [mintedPullIndex, setMintedPullIndex] = useState<number | null>(null)
+  const [mintedAddress, setMintedAddress] = useState<string | null>(null)
+  const [mintError, setMintError] = useState<string | null>(null)
 
   const isFirstPull = pullsDone === 0
   const pityDue = pitySinceGrand !== null && pitySinceGrand >= PITY_WARNING_AT
@@ -163,7 +172,6 @@ export function PullScreen({
           payer: wallet.publicKey,
           pda: playerPda,
         })
-        .remainingAccounts([{ pubkey: ER_VALIDATOR, isSigner: false, isWritable: false }])
         .rpc()
 
       setDelegated(true)
@@ -191,6 +199,10 @@ export function PullScreen({
     setError(null)
     setResult(null)
     setLatencyMs(null)
+    setLastPull(null)
+    setMintedPullIndex(null)
+    setMintedAddress(null)
+    setMintError(null)
 
     const startedAt = performance.now()
 
@@ -224,6 +236,7 @@ export function PullScreen({
         const card = resolveCard(category, updated.lastRarity, updated.lastCardSeed)
         setResult(card)
         setResultCategory(category)
+        setLastPull({ rarity: updated.lastRarity, cardSeed: updated.lastCardSeed, pullIndex: updated.pullsDone })
         onReveal(card, category)
       } else {
         setError('Pull sent, still resolving — check back in a moment.')
@@ -235,6 +248,52 @@ export function PullScreen({
       setPulling(false)
     }
   }, [erProgram, wallet.publicKey, playerPda, playerAccountNamespace, pullsDone, onReveal, category])
+
+  const handleMint = useCallback(async () => {
+    if (!baseProgram || !wallet.publicKey || !lastPull) return
+    setMinting(true)
+    setMintError(null)
+    try {
+      // Mints on the base layer (not the ER) so the card is a real, durable SPL token
+      // any wallet — including Seeker — can see. A 0-decimal mint with mint authority
+      // revoked right after minting 1 token is the simplest form of an NFT.
+      const pullIndexBytes = Buffer.alloc(4)
+      pullIndexBytes.writeUInt32LE(lastPull.pullIndex)
+
+      const [mintPda] = web3.PublicKey.findProgramAddressSync(
+        [Buffer.from('card_mint'), wallet.publicKey.toBuffer(), pullIndexBytes],
+        PROGRAM_ID
+      )
+      const [cardRecordPda] = web3.PublicKey.findProgramAddressSync(
+        [Buffer.from('card_record'), mintPda.toBuffer()],
+        PROGRAM_ID
+      )
+      const [tokenAccountPda] = web3.PublicKey.findProgramAddressSync(
+        [wallet.publicKey.toBuffer(), TOKEN_PROGRAM_ID.toBuffer(), mintPda.toBuffer()],
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      )
+
+      await baseProgram.methods
+        .mintCardNft(lastPull.rarity, lastPull.cardSeed, lastPull.pullIndex)
+        .accounts({
+          payer: wallet.publicKey,
+          mint: mintPda,
+          cardRecord: cardRecordPda,
+          tokenAccount: tokenAccountPda,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          systemProgram: web3.SystemProgram.programId,
+        })
+        .rpc()
+      setMintedPullIndex(lastPull.pullIndex)
+      setMintedAddress(mintPda.toBase58())
+    } catch (e: unknown) {
+      console.error(e)
+      setMintError(friendlyRpcError(e))
+    } finally {
+      setMinting(false)
+    }
+  }, [baseProgram, wallet.publicKey, lastPull])
 
   if (!wallet.publicKey) {
     return (
@@ -348,13 +407,38 @@ export function PullScreen({
           <span className={`inline-block px-2 py-1 text-xs font-black uppercase tracking-widest ${rarityStyle.badge}`}>
             {rarityStyle.label}
           </span>
-          <OracleCardArt category={resultCategory ?? category} rarity={result.rarity} className="h-48 w-36 border-2 border-paper bg-ink shadow-[6px_6px_0_0_#fd1789]" />
+          <OracleCardArt category={resultCategory ?? category} rarity={result.rarity} className="h-48 w-36 bg-ink shadow-[6px_6px_0_0_#fd1789]" />
           <div className="text-2xl font-black uppercase text-ink">{result.name}</div>
           <p className="text-sm italic text-ink/70">"{result.reading}"</p>
           {latencyMs !== null && (
             <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-ink/60">
               Sealed by MagicBlock VRF · resolved in {latencyMs}ms
             </p>
+          )}
+          {lastPull && (
+            <div className="mt-2 w-full">
+              {mintedPullIndex === lastPull.pullIndex ? (
+                <a
+                  href={`https://explorer.solana.com/address/${mintedAddress}?cluster=devnet`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-full items-center justify-center gap-2 border-4 border-flare bg-flare/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-flare active:translate-y-1"
+                >
+                  ✦ Minted — View on Explorer ↗
+                </a>
+              ) : (
+                <button
+                  onClick={handleMint}
+                  disabled={minting}
+                  className="w-full border-4 border-ink bg-ink px-4 py-3 text-xs font-black uppercase tracking-widest text-paper active:translate-y-1 disabled:opacity-50"
+                >
+                  {minting ? 'Minting...' : 'Claim as NFT'}
+                </button>
+              )}
+              {mintError && (
+                <p className="mt-2 w-full [overflow-wrap:anywhere] text-[11px] font-bold text-red-500">{mintError}</p>
+              )}
+            </div>
           )}
         </div>
       )}

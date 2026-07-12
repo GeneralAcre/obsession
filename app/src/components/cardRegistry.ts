@@ -32,23 +32,6 @@ const POOLS: Record<Category, Pool> = {
       { name: 'Golden Hour', reading: 'Say yes to the opening. It will not remain open forever.' },
     ],
   },
-  crypto: {
-    minor: [
-      { name: 'Green Candle', reading: 'Momentum is real, but it is not a promise. Keep your size sensible.' },
-      { name: 'Cold Wallet', reading: 'Patience protects more value than panic ever creates.' },
-      { name: 'Sideways Moon', reading: 'Nothing moves until it does. Use the quiet to sharpen your thesis.' },
-    ],
-    major: [
-      { name: 'Signal Over Noise', reading: 'Ignore the room. The useful information is hiding in the boring part.' },
-      { name: 'The Liquidity Tide', reading: 'Timing matters, but a plan matters more when the tide turns.' },
-      { name: 'Conviction Test', reading: 'Your position is asking what you actually believe, not what you posted.' },
-    ],
-    grand: [
-      { name: 'Block Zero', reading: 'A conviction becomes a beginning. Move with purpose, not euphoria.' },
-      { name: 'The Open Ledger', reading: 'The pattern reveals itself. Read it closely, then act once.' },
-      { name: 'Full Send, Soft Hands', reading: 'Boldness earns its place when it is paired with a clear exit.' },
-    ],
-  },
   relationship: {
     minor: [
       { name: 'Shared Silence', reading: 'Not every pause is distance. Let the moment breathe.' },
@@ -66,15 +49,39 @@ const POOLS: Record<Category, Pool> = {
       { name: 'The Kept Promise', reading: 'What is meant to endure now asks for your full presence.' },
     ],
   },
+  meme: {
+    minor: [
+      { name: 'Main Character Buffering', reading: 'The plot has not stalled; it is loading a more dramatic cutscene.' },
+      { name: 'Group Chat Omen', reading: 'Read the room, then send the message you have been typing and deleting.' },
+      { name: 'Touch Grass', reading: 'A brief log-off will reveal the answer your feed cannot provide.' },
+    ],
+    major: [
+      { name: 'The Algorithm Knows', reading: 'The pattern keeps finding you. Notice what it is trying to make obvious.' },
+      { name: 'Unexpected Lore', reading: 'A casual detail becomes important. Save it for the season finale.' },
+      { name: 'Peak Cinema', reading: 'Commit to the bit. The timing is too perfect to waste.' },
+    ],
+    grand: [
+      { name: 'Legendary Screenshot', reading: 'This moment will be referenced for years. Document it with care.' },
+      { name: 'Timeline Reset', reading: 'The old arc is over. Enter the new era without an apology post.' },
+      { name: 'Galaxy Brain', reading: 'Your strange connection is correct. Follow it before everyone else catches up.' },
+    ],
+  },
 }
 
-const RARITY_MAP: Rarity[] = ['minor', 'major', 'grand']
+export const RARITY_MAP: Rarity[] = ['minor', 'major', 'grand']
+
+// One illustrated card face per deck; rarity is conveyed by the badge/ring around it, not separate art.
+export const CARD_IMAGE: Record<Category, string> = {
+  life: '/cards/Card-Life.png',
+  relationship: '/cards/Card-Relation.png',
+  meme: '/cards/Card-Meme.png',
+}
 
 export function resolveCard(category: Category, rarityByte: number, cardSeed: number): CardInfo {
   const rarity = RARITY_MAP[rarityByte] ?? 'minor'
   const pool = POOLS[category][rarity]
   const item = pool[cardSeed % pool.length]
-  return { ...item, id: rarityByte * 1000 + cardSeed, image: `/cards/${category}-${rarity}.svg`, rarity }
+  return { ...item, id: rarityByte * 1000 + cardSeed, image: CARD_IMAGE[category], rarity }
 }
 
 export function getCollectionCards(): { category: Category; card: CardInfo }[] {
@@ -85,7 +92,7 @@ export function getCollectionCards(): { category: Category; card: CardInfo }[] {
         card: {
           ...item,
           id: rarityIndex * 100 + index,
-          image: `/cards/${category}-${rarity}.svg`,
+          image: CARD_IMAGE[category],
           rarity,
         },
       }))

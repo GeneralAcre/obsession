@@ -40,7 +40,8 @@ function ObsessionApp() {
     : screen === 'categories'
       ? (
         <CategorySelect
-          onSelect={(next, nextIntention) => { setCategory(next); setIntention(nextIntention); setScreen('pull') }}
+          onSelect={(next, nextIntention) => { setCategory(next); setIntention(nextIntention); setScreen('draw') }}
+          onBrowse={() => setScreen('draw')}
           focusFaq={focusFaq}
           onFaqScrolled={() => setFocusFaq(false)}
         />
@@ -67,7 +68,7 @@ function ObsessionApp() {
     <AppShell
       stats={stats}
       lastDraw={lastDraw}
-      onHome={() => setScreen('landing')}
+      onHome={() => setScreen('categories')}
       onDraw={() => setScreen('draw')}
       onCollection={() => setScreen('collection')}
       onProfile={() => setScreen('profile')}

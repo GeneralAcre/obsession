@@ -19,7 +19,8 @@
     "@solana/web3.js": "^1.98.4",
     "buffer": "^6.0.3",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "vercel": "^55.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

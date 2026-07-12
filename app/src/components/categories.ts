@@ -1,4 +1,4 @@
-export type Category = 'life' | 'crypto' | 'relationship'
+export type Category = 'life' | 'relationship' | 'meme'
 
 export interface CategoryInfo {
   id: Category
@@ -19,20 +19,20 @@ export const CATEGORIES: CategoryInfo[] = [
     accentSoft: 'border-ink bg-paper text-ink',
   },
   {
-    id: 'crypto',
-    label: 'Crypto',
-    description: 'A reading for momentum, timing, and your bags.',
-    symbol: 'SIG',
-    accent: 'border-ink bg-[#e7b931] text-ink',
-    accentSoft: 'border-ink bg-[#e7b931] text-ink',
-  },
-  {
     id: 'relationship',
     label: 'Relationship',
     description: 'Guidance for bonds, longing, and honest connection.',
     symbol: 'TWO',
     accent: 'border-ink bg-[#f6aaa8] text-ink',
     accentSoft: 'border-ink bg-[#f6aaa8] text-ink',
+  },
+  {
+    id: 'meme',
+    label: 'Meme',
+    description: 'Chaotic clarity for the internet-brained and chronically online.',
+    symbol: 'LOL',
+    accent: 'border-ink bg-[#a9d7ff] text-ink',
+    accentSoft: 'border-ink bg-[#a9d7ff] text-ink',
   },
 ]
 
