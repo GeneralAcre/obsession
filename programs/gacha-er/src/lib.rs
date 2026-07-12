@@ -156,6 +156,22 @@ pub mod gacha_er {
             None,
         )?;
 
+        // Also give up freeze authority — otherwise this program (via the mint's own PDA
+        // signing power) could freeze the NFT in the holder's wallet at any time, which
+        // isn't a real ownership guarantee.
+        token::set_authority(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.key(),
+                SetAuthority {
+                    current_authority: ctx.accounts.mint.to_account_info(),
+                    account_or_mint: ctx.accounts.mint.to_account_info(),
+                },
+                signer_seeds,
+            ),
+            AuthorityType::FreezeAccount,
+            None,
+        )?;
+
         Ok(())
     }
 }

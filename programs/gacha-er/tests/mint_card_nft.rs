@@ -82,6 +82,11 @@ fn mint_card_nft_creates_a_one_of_one_token() {
     assert_eq!(mint_state.decimals, 0, "card NFTs must be indivisible");
     assert_eq!(mint_state.supply, 1, "supply must be fixed at exactly 1");
     assert_eq!(mint_state.mint_authority, COption::None, "mint authority must be revoked after minting");
+    assert_eq!(
+        mint_state.freeze_authority,
+        COption::None,
+        "freeze authority must be revoked too, or the program could freeze the NFT later"
+    );
 
     let token_account = svm
         .get_account(&to_address(token_account_pda))
