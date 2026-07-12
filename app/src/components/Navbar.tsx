@@ -36,10 +36,10 @@ export function Navbar({
         </button>
           {/* Phones: only brand + wallet up top; Draw/Collection/Profile live in the
               fixed bottom bar below. From md up everything joins one top row. */}
-          <div className="order-2 origin-right scale-90 md:order-3">
+          <div className="order-2 origin-right scale-90 md:order-4">
             <WalletMultiButton />
           </div>
-          <div className="order-3 hidden items-center gap-2 md:flex md:shrink-0">
+          <div className="order-3 hidden items-center gap-2 md:ml-auto md:flex md:shrink-0">
           <button onClick={onDraw} className="h-10 border-[3px] border-ink bg-flare px-3 text-[10px] font-black uppercase tracking-widest text-ink">
             Draw
           </button>
