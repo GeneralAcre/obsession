@@ -17,7 +17,7 @@ export function LandingPage({ onStart }: { onStart: () => void }) {
         <button
           type="button"
           onClick={onStart}
-          className="mt-8 rounded-[1.5rem] border-4 border-paper bg-flare px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-ink shadow-[4px_4px_0_#201839] transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-paper focus-visible:outline-offset-4 active:translate-y-1 sm:px-8 sm:py-4"
+          className="mt-8 rounded-none border-4 border-paper bg-flare px-6 py-3 text-sm font-black uppercase tracking-[0.16em] text-ink shadow-[4px_4px_0_#201839] transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-4 focus-visible:outline-paper focus-visible:outline-offset-4 active:translate-y-1 sm:px-8 sm:py-4"
         >
           Start
         </button>

@@ -48,7 +48,7 @@ export function Footer({
               rows={2}
               className="resize-none border-b-2 border-paper/20 bg-transparent pb-2 text-sm text-paper placeholder:text-paper/40 focus:border-flare focus:outline-none"
             />
-            <button type="submit" className="mt-1 w-full max-w-xs rounded-[1.75rem] border-4 border-paper bg-flare px-4 py-3 text-xs font-black uppercase tracking-widest text-ink">
+            <button type="submit" className="mt-1 w-full max-w-xs rounded-none border-4 border-paper bg-flare px-4 py-3 text-xs font-black uppercase tracking-widest text-ink">
               Send
             </button>
           </form>

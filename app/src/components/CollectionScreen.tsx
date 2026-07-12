@@ -65,16 +65,13 @@ export function CollectionScreen() {
               <p className="text-xs font-black uppercase tracking-[0.2em] text-ink/65">{categoryInfo.label} deck</p>
               <h2 className="mt-2 text-3xl font-black uppercase text-ink md:text-4xl">{categoryInfo.description}</h2>
             </div>
-            <span className="rounded-full border-2 border-ink bg-paper px-4 py-1 text-xs font-black uppercase tracking-[0.22em] text-ink shadow-[3px_3px_0_#18171b]">
-              {categoryInfo.symbol}
-            </span>
           </div>
 
           <div className="mt-6 space-y-8">
             {rarities.map(({ rarity, items }) => (
               <div key={rarity} className="space-y-4">
                 <div className="flex items-center gap-3 text-sm font-black uppercase tracking-widest text-ink">
-                  <span className={`inline-flex h-3 w-3 rounded-full ${
+                  <span className={`inline-flex h-3 w-3 rounded-none ${
                     rarity === 'minor' ? 'bg-ink' : rarity === 'major' ? 'bg-flare' : 'bg-flare'
                   }`} />
                   <span>{RARITY_LABEL[rarity]}</span>
@@ -91,7 +88,7 @@ export function CollectionScreen() {
                       <img
                         src={card.image}
                         alt={`${card.name} card art`}
-                        className={`h-36 w-full rounded-sm border-4 bg-ink object-cover ${RARITY_RING[card.rarity]}`}
+                        className={`h-36 w-full rounded-none border-4 bg-ink object-cover ${RARITY_RING[card.rarity]}`}
                       />
                       <div className="min-w-0">
                         <p className="text-[10px] font-black uppercase tracking-widest text-flare">{RARITY_LABEL[card.rarity]}</p>

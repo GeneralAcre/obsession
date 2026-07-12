@@ -40,7 +40,7 @@ export function Navbar({
             <WalletMultiButton />
           </div>
           <div className="order-3 hidden items-center gap-2 md:ml-auto md:flex md:shrink-0">
-          <button onClick={onDraw} className="h-10 border-[3px] border-ink bg-flare px-3 text-[10px] font-black uppercase tracking-widest text-ink">
+          <button onClick={onDraw} className="h-10 border-[3px] border-ink px-3 text-[10px] font-black uppercase tracking-widest text-ink">
             Draw
           </button>
           <button onClick={onCollection} className="h-10 border-[3px] border-ink px-3 text-[10px] font-black uppercase tracking-widest text-ink">
@@ -55,7 +55,7 @@ export function Navbar({
       {lastDraw && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t-2 border-ink/20 px-4 py-1.5">
           <div className="flex shrink-0 items-center gap-1.5">
-            <span className={`h-1.5 w-1.5 rounded-full ${RARITY_DOT[lastDraw.rarity]}`} />
+            <span className={`h-1.5 w-1.5 rounded-none ${RARITY_DOT[lastDraw.rarity]}`} />
             <span className="max-w-[9rem] truncate text-[10px] font-bold uppercase tracking-widest text-ink/60">
               Last: {lastDraw.name}
             </span>
@@ -78,7 +78,7 @@ export function MobileNav({
 }) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 flex gap-1.5 border-t-4 border-ink bg-paper px-2 pt-2 [padding-bottom:max(0.5rem,env(safe-area-inset-bottom))] md:hidden">
-      <button onClick={onDraw} className="h-10 flex-1 border-[3px] border-ink bg-flare text-[10px] font-black uppercase tracking-widest text-ink active:translate-y-0.5">
+      <button onClick={onDraw} className="h-10 flex-1 border-[3px] border-ink text-[10px] font-black uppercase tracking-widest text-ink active:translate-y-0.5">
         Draw
       </button>
       <button onClick={onCollection} className="h-10 flex-1 border-[3px] border-ink text-[10px] font-black uppercase tracking-widest text-ink active:translate-y-0.5">

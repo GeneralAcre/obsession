@@ -386,7 +386,7 @@ export function PullScreen({
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
         <span className="text-3xl text-flare">✦</span>
-        <div className="rounded-2xl border-4 border-ink bg-[#f5e3cb] px-8 py-6 text-center shadow-[4px_4px_0_#18171b]">
+        <div className="rounded-none border-4 border-ink bg-[#f5e3cb] px-8 py-6 text-center shadow-[4px_4px_0_#18171b]">
           <p className="text-lg font-black uppercase tracking-[0.24em] text-ink">Wallet disconnected</p>
           <p className="mt-2 text-sm text-ink/75">Reopen Phantom and reconnect to continue drawing.</p>
         </div>
@@ -401,18 +401,18 @@ export function PullScreen({
           <p className="text-[10px] font-black uppercase tracking-widest text-ink/60">Active channel</p>
           <p className="text-lg font-black uppercase text-ink">{getCategory(category).label}</p>
         </div>
-        <button onClick={onChangeCategory} className="rounded-sm border-2 border-ink px-3 py-2 text-[10px] font-black uppercase tracking-widest text-ink">
+        <button onClick={onChangeCategory} className="rounded-none border-2 border-ink px-3 py-2 text-[10px] font-black uppercase tracking-widest text-ink">
           Change
         </button>
       </div>
 
       {!delegated && (
         <div className="w-full max-w-md">
-          <div className="flex flex-col items-center gap-3 rounded-2xl border-4 border-ink bg-[#f5e3cb] p-4 text-center shadow-[4px_4px_0_#18171b] sm:flex-row sm:text-left">
+          <div className="flex flex-col items-center gap-3 rounded-none border-4 border-ink bg-[#f5e3cb] p-4 text-center shadow-[4px_4px_0_#18171b] sm:flex-row sm:text-left">
             <img
               src={CARD_IMAGE[category]}
               alt={`${getCategory(category).label} card art`}
-              className="h-28 w-28 shrink-0 rounded-xl object-contain"
+              className="h-28 w-28 shrink-0 rounded-none object-contain"
             />
             <div>
               <h2 className="text-xl font-black uppercase text-ink">Ready to draw</h2>
@@ -424,14 +424,14 @@ export function PullScreen({
           </div>
 
           {needsFunding && (
-            <div className="mt-4 rounded-2xl border-4 border-red-500 bg-red-950/40 p-4 text-sm text-red-200">
+            <div className="mt-4 rounded-none border-4 border-red-500 bg-red-950/40 p-4 text-sm text-red-200">
               <p className="font-black uppercase tracking-widest text-red-300">No devnet SOL</p>
               <p className="mt-2 leading-6">You need a little devnet SOL in your wallet to start.</p>
               <a
                 href={DEVNET_FAUCET_URL}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-block rounded-full border border-red-100 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-100"
+                className="mt-3 inline-block rounded-none border border-red-100 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-100"
               >
                 Get devnet SOL
               </a>
@@ -441,7 +441,7 @@ export function PullScreen({
           <button
             onClick={handleSetup}
             disabled={delegating}
-            className="mt-4 w-full rounded-2xl border-4 border-ink bg-flare px-6 py-4 text-base font-black uppercase tracking-widest text-paper active:translate-y-1 disabled:opacity-50"
+            className="mt-4 w-full rounded-none border-4 border-ink bg-flare px-6 py-4 text-base font-black uppercase tracking-widest text-paper active:translate-y-1 disabled:opacity-50"
           >
             {delegating ? 'Opening...' : 'Start drawing'}
           </button>
@@ -485,7 +485,7 @@ export function PullScreen({
                       <img
                         src={CARD_IMAGE[resultCategory ?? category]}
                         alt={result.name}
-                        className="h-full w-full rounded-xl border-2 border-ink object-cover drop-shadow-[6px_6px_0_#fd1789]"
+                        className="h-full w-full rounded-none border-2 border-ink object-cover drop-shadow-[6px_6px_0_#fd1789]"
                       />
                     </div>
                   </div>
@@ -502,11 +502,11 @@ export function PullScreen({
                   <div className="text-2xl font-black uppercase text-ink">{result.name}</div>
                   <p className="text-sm italic text-ink/70">"{result.reading}"</p>
                   {result.special && (
-                    <div className="mt-1 flex w-full items-center gap-3 rounded-2xl border-2 border-flare/60 bg-ink/5 p-3 text-left">
+                    <div className="mt-1 flex w-full items-center gap-3 rounded-none border-2 border-flare/60 bg-ink/5 p-3 text-left">
                       <img
                         src={SPECIAL_CARD.image}
                         alt={`${SPECIAL_CARD.name} — locked`}
-                        className="h-16 w-12 shrink-0 rounded-lg border-2 border-flare/60 object-cover grayscale"
+                        className="h-16 w-12 shrink-0 rounded-none border-2 border-flare/60 object-cover grayscale"
                       />
                       <div className="min-w-0">
                         <p className="text-[10px] font-black uppercase tracking-widest text-flare">🔒 Special occasion draw</p>
@@ -530,7 +530,7 @@ export function PullScreen({
                           href={`https://explorer.solana.com/address/${mintedAddress}?cluster=devnet`}
                           target="_blank"
                           rel="noreferrer"
-                          className="flex w-full items-center justify-center gap-2 rounded-[2rem] border-4 border-flare bg-flare/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-flare active:translate-y-1"
+                          className="flex w-full items-center justify-center gap-2 rounded-none border-4 border-flare bg-flare/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-flare active:translate-y-1"
                         >
                           ✦ Minted — View on Explorer ↗
                         </a>
@@ -538,7 +538,7 @@ export function PullScreen({
                         <button
                           onClick={handleMint}
                           disabled={minting}
-                          className="w-full rounded-[2rem] border-4 border-ink bg-ink px-4 py-3 text-xs font-black uppercase tracking-widest text-paper active:translate-y-1 disabled:opacity-50"
+                          className="w-full rounded-none border-4 border-ink bg-ink px-4 py-3 text-xs font-black uppercase tracking-widest text-paper active:translate-y-1 disabled:opacity-50"
                         >
                           {minting ? 'Minting...' : 'Claim as NFT'}
                         </button>
@@ -555,7 +555,7 @@ export function PullScreen({
                 <img
                   src={CARD_IMAGE[category]}
                   alt={`${getCategory(category).label} card pack`}
-                  className="w-full rounded-xl border-2 border-ink object-contain drop-shadow-[5px_5px_0_#fd1789]"
+                  className="w-full rounded-none border-2 border-ink object-contain drop-shadow-[5px_5px_0_#fd1789]"
                 />
               </div>
             )}
@@ -563,7 +563,7 @@ export function PullScreen({
             <button
               onClick={handlePull}
               disabled={pulling}
-              className="mt-4 mx-auto w-[min(90%,18rem)] rounded-[2rem] border-4 border-ink bg-flare px-6 py-3 text-lg font-black uppercase text-paper active:translate-y-1 disabled:opacity-50 md:px-8 md:py-5 md:text-xl"
+              className="mt-4 mx-auto w-[min(90%,18rem)] rounded-none border-4 border-ink bg-flare px-6 py-3 text-lg font-black uppercase text-paper active:translate-y-1 disabled:opacity-50 md:px-8 md:py-5 md:text-xl"
             >
               {pulling ? 'Consulting Obsession...' : result ? 'Draw Again' : 'Draw'}
             </button>

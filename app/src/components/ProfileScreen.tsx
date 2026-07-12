@@ -182,7 +182,7 @@ export function ProfileScreen() {
               <img
                 src={entry.card.image}
                 alt={`${entry.card.name} card art`}
-                className="h-36 w-full max-w-[6rem] shrink-0 rounded-sm border-2 border-ink bg-ink object-cover sm:w-24"
+                className="h-36 w-full max-w-[6rem] shrink-0 rounded-none border-2 border-ink bg-ink object-cover sm:w-24"
               />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
