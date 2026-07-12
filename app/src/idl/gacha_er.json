@@ -610,6 +610,80 @@
           "type": "u8"
         }
       ]
+    },
+    {
+      "name": "revoke_freeze_authority",
+      "docs": [
+        "Cleanup for cards minted before freeze authority was revoked at mint time: revokes it",
+        "now. This is safe to leave permissionless — it only ever removes a capability (no one",
+        "can use it to freeze, steal, or transfer anything), so anyone can call it on anyone's",
+        "mint, including on the holder's behalf."
+      ],
+      "discriminator": [
+        84,
+        177,
+        206,
+        249,
+        25,
+        1,
+        237,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "docs": [
+            "Pays the transaction fee — deliberately not required to be the card's holder, since",
+            "this only ever removes a capability and never grants one."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  114,
+                  100,
+                  95,
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "holder"
+              },
+              {
+                "kind": "arg",
+                "path": "pull_index"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "holder",
+          "type": "pubkey"
+        },
+        {
+          "name": "pull_index",
+          "type": "u32"
+        }
+      ]
     }
   ],
   "accounts": [

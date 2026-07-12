@@ -174,6 +174,33 @@ pub mod gacha_er {
 
         Ok(())
     }
+
+    /// Cleanup for cards minted before freeze authority was revoked at mint time: revokes it
+    /// now. This is safe to leave permissionless — it only ever removes a capability (no one
+    /// can use it to freeze, steal, or transfer anything), so anyone can call it on anyone's
+    /// mint, including on the holder's behalf.
+    pub fn revoke_freeze_authority(ctx: Context<RevokeFreezeAuthority>, holder: Pubkey, pull_index: u32) -> Result<()> {
+        let holder_bytes = holder.to_bytes();
+        let pull_index_bytes = pull_index.to_le_bytes();
+        let mint_bump = ctx.bumps.mint;
+        let mint_seeds: &[&[u8]] = &[CARD_MINT_SEED, &holder_bytes, &pull_index_bytes, &[mint_bump]];
+        let signer_seeds: &[&[&[u8]]] = &[mint_seeds];
+
+        token::set_authority(
+            CpiContext::new_with_signer(
+                ctx.accounts.token_program.key(),
+                SetAuthority {
+                    current_authority: ctx.accounts.mint.to_account_info(),
+                    account_or_mint: ctx.accounts.mint.to_account_info(),
+                },
+                signer_seeds,
+            ),
+            AuthorityType::FreezeAccount,
+            None,
+        )?;
+
+        Ok(())
+    }
 }
 
 #[error_code]
@@ -363,6 +390,22 @@ pub struct MintCardNft<'info> {
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(holder: Pubkey, pull_index: u32)]
+pub struct RevokeFreezeAuthority<'info> {
+    /// Pays the transaction fee — deliberately not required to be the card's holder, since
+    /// this only ever removes a capability and never grants one.
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    #[account(
+        mut,
+        seeds = [CARD_MINT_SEED, holder.as_ref(), &pull_index.to_le_bytes()],
+        bump,
+    )]
+    pub mint: Account<'info, Mint>,
+    pub token_program: Program<'info, Token>,
 }
 
 #[account]

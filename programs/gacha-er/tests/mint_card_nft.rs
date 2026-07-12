@@ -165,6 +165,68 @@ fn mint_card_nft_rejects_out_of_range_rarity() {
 }
 
 #[test]
+fn revoke_freeze_authority_clears_a_stale_freeze_authority() {
+    let mut svm = LiteSVM::new();
+
+    let payer = Keypair::new();
+    svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
+
+    let program_id_anchor = gacha_er::ID;
+    let program_id = to_address(program_id_anchor);
+    svm.add_program_from_file(program_id, "../../target/deploy/gacha_er.so")
+        .unwrap();
+
+    let holder: AnchorPubkey = "11111111111111111111111111111112".parse().unwrap();
+    let pull_index: u32 = 1;
+    let (mint_pda, _) = AnchorPubkey::find_program_address(
+        &[gacha_er::CARD_MINT_SEED, holder.as_ref(), &pull_index.to_le_bytes()],
+        &program_id_anchor,
+    );
+
+    // Simulate a pre-fix mint: mint authority already revoked, but freeze authority still
+    // pointed at the mint's own PDA, exactly like the cards minted before this fix shipped.
+    let mint_state = MintState {
+        mint_authority: COption::None,
+        supply: 1,
+        decimals: 0,
+        is_initialized: true,
+        freeze_authority: COption::Some(mint_pda),
+    };
+    let mut data = vec![0u8; MintState::LEN];
+    MintState::pack(mint_state, &mut data).unwrap();
+    svm.set_account(
+        to_address(mint_pda),
+        solana_account::Account {
+            lamports: 1_461_600,
+            data,
+            owner: to_address(anchor_spl::token::ID),
+            executable: false,
+            rent_epoch: 0,
+        },
+    )
+    .unwrap();
+
+    let ix = Instruction {
+        program_id,
+        accounts: vec![
+            AccountMeta::new(payer.pubkey(), true),
+            AccountMeta::new(to_address(mint_pda), false),
+            AccountMeta::new_readonly(to_address(anchor_spl::token::ID), false),
+        ],
+        data: gacha_er::instruction::RevokeFreezeAuthority { holder, pull_index }.data(),
+    };
+
+    let blockhash = svm.latest_blockhash();
+    let tx = Transaction::new(&[&payer], Message::new(&[ix], Some(&payer.pubkey())), blockhash);
+    svm.send_transaction(tx)
+        .unwrap_or_else(|e| panic!("revoke_freeze_authority failed: {e:?}"));
+
+    let mint_account = svm.get_account(&to_address(mint_pda)).expect("mint account should exist");
+    let mint_state = MintState::unpack(&mint_account.data).expect("valid mint state");
+    assert_eq!(mint_state.freeze_authority, COption::None, "freeze authority should now be revoked");
+}
+
+#[test]
 fn client_side_pda_derivation_matches_program() {
     // Cross-check against the exact same seeds the TS frontend derives client-side
     // (see PullScreen.tsx handleMint), using a fixed payer so both sides are reproducible.
