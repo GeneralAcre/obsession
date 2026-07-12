@@ -45,6 +45,9 @@ const DEVNET_FAUCET_URL = 'https://faucet.solana.com'
 
 function friendlyRpcError(e: unknown): string {
   const message = e instanceof Error ? e.message : String(e)
+  if (/user rejected|rejected the request|declined|approval denied/i.test(message)) {
+    return 'The signature was declined in your wallet. Tap the button again and press Confirm in the Phantom popup. If Phantom warns the transaction "may fail", that is because this game runs on devnet — in Phantom go to Settings → Developer Settings → turn on Testnet Mode and pick Solana Devnet, then draw again.'
+  }
   if (/insufficient|debit an account|0x1\b/i.test(message)) {
     return 'This wallet needs a trace of devnet SOL to cover this step. Get some free devnet SOL, then try again.'
   }
@@ -295,7 +298,7 @@ export function PullScreen({
       }
     } catch (e: unknown) {
       console.error(e)
-      setError(e instanceof Error ? e.message : 'Pull failed')
+      setError(friendlyRpcError(e))
     } finally {
       setPulling(false)
     }
